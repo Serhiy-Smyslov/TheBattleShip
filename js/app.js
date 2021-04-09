@@ -14,7 +14,6 @@ var view = {
     displayMiss: function(location){
         var cell = document.getElementById(location);
         cell.setAttribute("class", "miss");
-        cell.setAttribute("class", "some");
     }
 };
 
@@ -107,3 +106,60 @@ var model = {
         return false;
     }
 }
+
+// CONTROL
+
+var controller = {
+    gusses: 0,
+
+    processGuess: function(guess){ // Show player result, when he win
+        var location = parseGuess(guess);
+        if (location){
+            this.gusses++;
+            var hit = model.fire(location);
+            if (hit && model.shipsSunk === model.numShips){
+                view.displayMessage(`${this.gusses} fires! You win!`);
+            }
+        }
+    }
+}
+
+function parseGuess(guess){ // Check correct users coordinate
+    var alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+
+    if (guess.search(/[A-G][0-6]/) !== -1){
+        firstChar = guess.charAt(0);
+        var row = alphabet.indexOf(firstChar);
+        var column = guess.charAt(1);
+        return row + column;
+    };
+    alert('Not correct input.');
+    return null;
+};
+
+function init(){
+    var fireButton = document.getElementById('fireButton');
+    fireButton.onclick = handleFireButton;
+    // Work with keyboard
+    var guessInput = document.getElementById('guessInput');
+    guessInput.onkeypress = handleKeyPress;
+
+    model.generateShipLocations();
+}
+
+function handleFireButton(){
+    var guessInput = document.getElementById('guessInput');
+    var guess = guessInput.value;
+    controller.processGuess(guess);
+    guessInput.value = '';
+}
+
+function handleKeyPress(e){
+    var fireButton = document.getElementById('fireButton');
+    if(e.keyCode === 13){
+        fireButton.click();
+        return false;
+    }
+}
+
+window.onload = init();
